@@ -31,6 +31,11 @@ protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 
+	void PrimaryAttack();
+
+protected:
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> ProjectileClass;
 
 protected:
 	UPROPERTY(VisibleAnywhere)

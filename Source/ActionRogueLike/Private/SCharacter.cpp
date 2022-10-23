@@ -3,6 +3,7 @@
 
 #include "SCharacter.h"
 
+#include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -44,11 +45,17 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &ASCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ASCharacter::MoveRight);
 	
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+
+
+	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 }
 
 void ASCharacter::MoveForward(float Value)
@@ -73,4 +80,20 @@ void ASCharacter::MoveRight(float Value)
 	FVector RightVector = FRotationMatrix(ControlRotator).GetScaledAxis(EAxis::Y);
 	
 	AddMovementInput(RightVector, Value);
+}
+
+void ASCharacter::PrimaryAttack()
+{
+	// Use mesh to get hand location.
+	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+	
+	
+	// Where to spawn this new actor.
+	FTransform SpawnTransformMatrix(GetControlRotation(), HandLocation);
+
+	// What kind of actor will be spawned.
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTransformMatrix, SpawnParameters);
 }
